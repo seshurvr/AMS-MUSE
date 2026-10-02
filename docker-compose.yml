@@ -1,0 +1,47 @@
+# Classroom Photo Attendance Management System
+# One-command path: `docker compose up --build`
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    # Optional local overrides; every variable also has a sane default below,
+    # so `docker compose up --build` works with no .env file present.
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: sqlite:////app/data/app.db
+      DATA_DIR: /app/data
+      UPLOAD_DIR: /app/uploads
+      # Dev-only default. Override in production: JWT_SECRET=... in backend/.env
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-in-production}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+    volumes:
+      - app-data:/app/data
+      - app-uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  app-data:     # SQLite database (./data/app.db equivalent)
+  app-uploads:  # Uploaded classroom photos (./uploads equivalent)

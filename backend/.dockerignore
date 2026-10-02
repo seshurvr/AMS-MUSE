@@ -1,0 +1,28 @@
+# Build artefacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Test / dev tooling
+.pytest_cache/
+tests/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env/
+
+# Runtime state (mounted as volumes in compose; never baked into the image)
+data/
+uploads/
+*.db
+*.db-journal
+
+# VCS / editor noise
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp

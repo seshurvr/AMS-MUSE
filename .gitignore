@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Env / secrets
+.env
+backend/.env
+
+# Local data & uploads
+data/
+uploads/
+*.db
+*.sqlite*
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.dill
+
+# Node (legacy, removed in M1)
+node_modules/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Alembic
+# (keep migrations; ignore nothing here)

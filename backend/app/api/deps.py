@@ -29,7 +29,7 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token. Please log in again.",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
     user = db.get(models.User, user_id)
     if user is None:
         raise HTTPException(

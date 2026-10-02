@@ -1,0 +1,35 @@
+name: classroom_attendance
+description: >-
+  Student Photo Attendance System — one Flutter/Dart codebase for Android
+  and Web/Desktop. Teachers register classes and students, capture a
+  classroom photo, review automatic face-recognition suggestions, correct
+  them, and finalize attendance.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # State management (ChangeNotifier-based, simple and explicit)
+  provider: ^6.1.2
+  # HTTP + auth token persistence
+  http: ^1.2.2
+  shared_preferences: ^2.2.3
+  # Image capture / picking (camera on Android, file picker on web/desktop)
+  image_picker: ^1.1.2
+  file_picker: ^8.1.2
+  # File downloads of CSV/XLSX exports
+  path_provider: ^2.1.4
+  # Date/number formatting
+  intl: ">=0.19.0 <1.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

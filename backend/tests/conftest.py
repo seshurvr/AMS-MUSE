@@ -32,6 +32,9 @@ os.environ["DATABASE_URL"] = f"sqlite:///{DB_PATH}"
 os.environ["JWT_SECRET"] = "test-only-secret-not-for-production"
 os.environ["UPLOAD_DIR"] = str(UPLOAD_DIR)
 os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"] = "60"
+# Rate limiting is exercised by the app, but the suite logs in far more than
+# 10x/minute; raise the test limit so it never trips.
+os.environ["RATE_LIMIT_LOGIN"] = "10000/minute"
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BACKEND_DIR))

@@ -1,0 +1,58 @@
+name: Backend
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - "docker-compose.yml"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "docker-compose.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # No secrets required: the suite uses an isolated temp SQLite DB.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Lint
+        run: |
+          pip install ruff
+          ruff check backend/app backend/tests backend/seed.py
+
+      - name: Run tests
+        run: python -m pytest backend/tests -q
+
+      - name: Verify Alembic migrations apply cleanly
+        working-directory: backend
+        run: |
+          rm -f /tmp/ci-migrate.db
+          DATABASE_URL=sqlite:////tmp/ci-migrate.db alembic upgrade head
+          DATABASE_URL=sqlite:////tmp/ci-migrate.db alembic downgrade base
+          DATABASE_URL=sqlite:////tmp/ci-migrate.db alembic upgrade head
+
+      - name: Smoke-test app startup
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:////tmp/ci-smoke.db
+          JWT_SECRET: ci-only-secret
+        run: |
+          python - <<'EOF'
+          from fastapi.testclient import TestClient
+          from app.main import app
+          with TestClient(app) as client:
+              r = client.get("/api/health")
+              assert r.status_code == 200, r.text
+              assert r.json()["ok"] is True, r.json()
+              print("health:", r.json())
+          EOF

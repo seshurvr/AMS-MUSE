@@ -23,6 +23,17 @@ class Settings(BaseSettings):
     )
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024
     DETECTION_CONFIDENCE_THRESHOLD: float = 0.5
+    # --- Face recognition (Milestone 3). Threshold is configurable, not magic:
+    # tune on a validation set and document the chosen value. ---
+    FACE_MATCH_THRESHOLD: float = 0.70
+    FACE_UNCERTAIN_THRESHOLD: float = 0.55
+    FACE_DETECTOR: str = "opencv_yunet"  # swappable: see app/recognition/
+    FACE_EMBEDDER: str = "opencv_sface"  # swappable: see app/recognition/
+    FACE_MAX_IMAGE_DIM: int = 1600
+    RECOGNITION_TIMEOUT_SECONDS: int = 120
+    # --- Auth rate limiting (slowapi "N/minute" strings) ---
+    RATE_LIMIT_LOGIN: str = "10/minute"
+    RATE_LIMIT_DEFAULT: str = "200/minute"
     IMAGE_RETENTION_DAYS: int = 90
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
     CORS_ORIGINS: List[str] = ["http://localhost:5173"]

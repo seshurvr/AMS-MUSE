@@ -86,7 +86,7 @@ class HOGPersonDetector(BaseDetector):
 
         boxes: list[list[float]] = []
         scores: list[float] = []
-        for (x, y, w, h), weight in zip(rects, weights):
+        for (x, y, w, h), weight in zip(rects, weights, strict=True):
             boxes.append([float(x), float(y), float(w), float(h)])
             scores.append(self._confidence(float(weight)))
 

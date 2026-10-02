@@ -1,0 +1,38 @@
+name: Flutter
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/flutter.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # No secrets required.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Analyze
+        working-directory: frontend
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Run tests
+        working-directory: frontend
+        run: flutter test
+
+      - name: Build web
+        working-directory: frontend
+        run: flutter build web --release --dart-define=API_BASE_URL=/api

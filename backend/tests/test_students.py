@@ -1,7 +1,6 @@
 """Students CRUD, duplicate validation, CSV import."""
 from pathlib import Path
 
-import pytest
 from fastapi.testclient import TestClient
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent

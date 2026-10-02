@@ -62,7 +62,6 @@ def test_image_quality_keys(detector, tmp_path):
 
 
 def test_image_quality_dark_image_warns(detector, tmp_path):
-    dark = make_classroom_png()
     # Darken heavily via raw bytes manipulation is overkill; use a black PNG.
     import cv2
     import numpy as np

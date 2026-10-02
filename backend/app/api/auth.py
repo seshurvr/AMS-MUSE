@@ -1,18 +1,23 @@
 """Authentication endpoints."""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.api.deps import get_current_user, log_action
+from app.config import settings
 from app.database import get_db
 from app.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/login", response_model=schemas.LoginOut)
-def login(payload: schemas.LoginIn, db: Session = Depends(get_db)):
+@limiter.limit(settings.RATE_LIMIT_LOGIN)
+def login(request: Request, payload: schemas.LoginIn, db: Session = Depends(get_db)):
     identifier = payload.username.strip()
     user = (
         db.query(models.User)

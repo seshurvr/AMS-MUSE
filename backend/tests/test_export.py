@@ -13,8 +13,6 @@ from app.services.export_service import (
     build_attendance_xlsx,
 )
 
-from .conftest import make_classroom_png
-
 
 def _rows():
     return [

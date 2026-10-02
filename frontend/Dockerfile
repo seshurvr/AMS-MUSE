@@ -1,21 +1,17 @@
-# ---- Build stage: compile the React + Vite frontend ----
-FROM node:20-alpine AS build
+# Frontend: Flutter web build served by nginx, /api proxied to the backend.
+# The API base URL is baked in as a relative path so the same image works
+# behind any host: API_BASE_URL=/api.
+FROM ghcr.io/cirruslabs/flutter:stable AS build
 
 WORKDIR /app
-
-# Install deps first for better layer caching
-COPY package.json package-lock.json* ./
-RUN npm ci
-
+COPY pubspec.yaml ./
+RUN flutter pub get
 COPY . .
-RUN npm run build
+RUN flutter build web --release --dart-define=API_BASE_URL=/api
 
-# ---- Serve stage: nginx serving the static dist/ bundle ----
 FROM nginx:alpine
-
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/build/web /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
 EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1

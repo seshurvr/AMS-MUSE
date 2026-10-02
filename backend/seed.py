@@ -51,7 +51,7 @@ def main() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        admin = get_or_create_user(db, "admin", ADMIN_EMAIL, ADMIN_PASSWORD, "admin")
+        get_or_create_user(db, "admin", ADMIN_EMAIL, ADMIN_PASSWORD, "admin")
         teacher = get_or_create_user(
             db, "teacher", TEACHER_EMAIL, TEACHER_PASSWORD, "teacher"
         )
@@ -100,7 +100,7 @@ def main() -> None:
                 db.add(existing)
             students.append(existing)
         db.flush()
-        print(f"  ensured 20 demo students (Demo Student 01..20)")
+        print("  ensured 20 demo students (Demo Student 01..20)")
 
         rng = random.Random(42)
         history = [

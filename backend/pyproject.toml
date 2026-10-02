@@ -1,0 +1,17 @@
+# Lint configuration for the FastAPI backend.
+# Run:  ruff check app tests seed.py
+# Fix:  ruff check --fix app tests seed.py
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+# F: pyflakes (unused imports/vars, undefined names) — genuine bugs.
+# E9: syntax errors. B: bugbear, minus B008 which false-positives on
+# idiomatic FastAPI Depends()/Query()/File() parameter defaults.
+select = ["F", "E9", "B"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests intentionally exercise error paths.
+"tests/**" = ["B017"]

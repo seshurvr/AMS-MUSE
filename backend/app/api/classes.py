@@ -179,7 +179,7 @@ async def import_students_csv(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="CSV must be UTF-8 encoded.",
-        )
+        ) from None
     reader = csv.DictReader(io.StringIO(text))
     required = {"student_id", "roll_number", "name"}
     if reader.fieldnames is None or not required.issubset(

@@ -1,25 +1,52 @@
 # Classroom Photo Attendance Management System
 # One-command path: `docker compose up --build`
+#
+# Services: postgres (production database), backend (FastAPI), frontend
+# (Flutter web build served by nginx). The backend waits for postgres to be
+# healthy before starting. All credentials below are DEV-ONLY defaults;
+# override them in production via environment or a secrets manager.
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-attendance}
+      POSTGRES_USER: ${POSTGRES_USER:-attendance}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-attendance-dev-only}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-attendance} -d ${POSTGRES_DB:-attendance}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    # Optional local overrides; every variable also has a sane default below,
-    # so `docker compose up --build` works with no .env file present.
     env_file:
       - path: ./backend/.env
         required: false
     environment:
-      DATABASE_URL: sqlite:////app/data/app.db
+      # Production database. Local `uvicorn` dev without compose keeps the
+      # SQLite default from the Dockerfile.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-attendance}:${POSTGRES_PASSWORD:-attendance-dev-only}@postgres:5432/${POSTGRES_DB:-attendance}
       DATA_DIR: /app/data
       UPLOAD_DIR: /app/uploads
-      # Dev-only default. Override in production: JWT_SECRET=... in backend/.env
-      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-in-production}
+      # Dev-only default. Override in production: JWT_SECRET=<redacted>
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      FACE_MATCH_THRESHOLD: ${FACE_MATCH_THRESHOLD:-0.70}
+      IMAGE_RETENTION_DAYS: ${IMAGE_RETENTION_DAYS:-90}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - app-data:/app/data
       - app-uploads:/app/uploads
@@ -43,5 +70,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  app-data:     # SQLite database (./data/app.db equivalent)
-  app-uploads:  # Uploaded classroom photos (./uploads equivalent)
+  pg-data:      # PostgreSQL data
+  app-data:     # local file cache (SQLite fallback / temp files)
+  app-uploads:  # uploaded classroom photos

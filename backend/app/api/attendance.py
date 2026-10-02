@@ -147,7 +147,7 @@ async def upload_session_image(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Could not read the image: {exc}",
-        )
+        ) from None
 
     # Remove any previous photo for this session.
     if session.image_path:
@@ -213,7 +213,7 @@ def process_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Person detection failed: {exc}",
-        )
+        ) from None
     session.processing_status = "processed"
     db.commit()
     log_action(db, user, "session_processed", "session", session.id)
@@ -274,7 +274,7 @@ def update_records(
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        )
+        ) from None
     db.commit()
     log_action(db, user, "session_records_updated", "session", session.id)
     return {"ok": True, "updated": updated}
@@ -299,7 +299,7 @@ def finalize_session(
         except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-            )
+            ) from None
     summary = attendance_service.finalize_session(db, session)
     db.commit()
     log_action(db, user, "session_finalized", "session", session.id)
